@@ -123,7 +123,7 @@ class NodeVisitor(object):
         # Call that method, and show where in the tree it failed if it blows
         # up.
         try:
-            return method(node)
+            return method([self.visit(n) for n in node])
         except VisitationException:
             # Don't catch and re-wrap already-wrapped exceptions.
             raise

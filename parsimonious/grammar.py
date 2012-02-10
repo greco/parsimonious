@@ -144,17 +144,20 @@ class _LazyReference(unicode):
 class PegVisitor(NodeVisitor):
     """Turns a parse tree of a grammar definition into a map of ``Expression`` objects"""
 
-    def visit_rule(self, node):
+    quantifier_classes = {'?': Optional, '*': ZeroOrMore, '+': OneOrMore}
+
+    def visit_quantified(self, (atom, quantifier)):
+        return self.quantifier_classes[quantifier.text](atom)
+
     def visit_rule(self, (ws, label, _2, equals, _3, rhs, _4, eol)):
         """Assign a name to the Expression and return it."""
-        rhs = self.visit(rhs)
-        label = unicode(self.visit(label))  # Turn into text.
+        label = unicode(label)  # Turn into text.
         rhs.name = label  # Assign a name to the expr.
         return rhs
 
     def visit_rhs(self, (term_or_poly,)):
         """Lift the ``term`` or ``poly_term`` up to replace this node."""
-        return self.visit(term_or_poly)
+        return term_or_poly
 
     def visit_label(self, node):
         """Stick a :class:`_LazyReference` in the tree as a placeholder.
